@@ -5,7 +5,7 @@ getSongs();
 function getSongs() {
     
     axios.get('/songs').then((response) => {
-        console.log("GET /songs response", response);
+        // console.log("GET /songs response", response);
         appendSongsToDom(response.data);
     });
 }
@@ -19,7 +19,10 @@ function appendSongsToDom(songList) {
             <tr>
                 <td>${song.artist}</td>
                 <td>${song.track}</td>
-                <td>${song.rank}</td>
+                <td>${song.rank}
+                <button onClick="changeRank('up', ${song.id})">⬆️</button>
+                <button onClick="changeRank('down', ${song.id})">⬇️</button>
+                </td>
                 <td>${song.published}</td>
                 <td>
                     <button onClick="deleteSong(${song.id})">
@@ -30,6 +33,32 @@ function appendSongsToDom(songList) {
         `;
     }
 }
+
+function changeRank(direction, songId){
+    console.log("changing song rank...", direction, songId)
+
+
+// Use axios to send a PUT request to change song rank
+    //send direction & id in URL
+        //
+
+axios({
+    method: "PUT",
+    url: "/songs/rank/" + songId,
+    data: {
+        direction: direction
+    }
+})
+.then((response) => {
+getSongs()
+})
+.catch((err) => {
+    console.log("ERROR, ", err)
+})
+
+
+}
+
 
 function clearForm() {
     document.querySelector('#artist').value = '';
@@ -59,9 +88,15 @@ function postSong(event) {
 
 // Remove a song from our list
 function deleteSong(songId) {
-    axios.delete(`/songs/${songId}`).then((response) => {
+   
+    axios({
+        method: "DELETE",
+        url: `/songs/${songId}`
+    })
+    .then((response) => {
         getSongs();
-    }).catch((error) => {
+    })
+    .catch((error) => {
         console.log('Error', error);
         alert('Something went wrong');
     });
